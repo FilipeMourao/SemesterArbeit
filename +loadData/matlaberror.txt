@@ -1,0 +1,15 @@
+>> loadFromDB_script
+14      ds=databaseDatastore(conn,sql);
+K>> loadFromDB_script
+14      ds=databaseDatastore(conn,sql);
+Error using databaseDatastore (line 71)
+Invalid Cursor: [Microsoft][SQL Server Native Client 11.0][SQL Server]Die SELECT-Berechtigung wurde
+für das Reicofil_Plant_China-Objekt, MsAlarm-Datenbank, dbo-Schema, verweigert.
+
+Error in loadFromDB (line 14)
+    ds=databaseDatastore(conn,sql);
+
+Error in loadFromDB_script (line 1)
+T_reicofil=loadFromDB('Reicofil_Plant_China');
+ 
+2       mlock;
