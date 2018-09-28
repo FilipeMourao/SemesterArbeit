@@ -1,3 +1,4 @@
+%%What is the point of this function?
 function EdgeL=adj2gephilab(filename,ADJ,parameters)
 % Convert ana adjacency matrix of a graph to 2 spreadhseets csv files
 % one for the edge table and the other for node table.

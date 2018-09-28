@@ -10,11 +10,12 @@ function [ T ] = loadFromDB(apsname)
     conn = database('AlarmReadOrg','','');
     
     % Generate table from data base
-    sql=['SELECT * FROM ',apsname];
-    ds=databaseDatastore(conn,sql);
-    ds.ReadSize=1000000;
+    sql = ['SELECT * FROM ',apsname];
+    ds = databaseDatastore(conn,sql);
+    ds.ReadSize = 1000000;%By default, read reads from a TabularTextDatastore 20000 rows at a time. 
+	%To read a different number of rows in each call to read, modify the ReadSize property of ds.
     reset(ds);
-    T=read(ds);
+    T = read(ds);
     % Read out chunkwise
     while(hasdata(ds))
         T = [T;read(ds)];

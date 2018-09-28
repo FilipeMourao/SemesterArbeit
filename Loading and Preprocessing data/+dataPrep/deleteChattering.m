@@ -16,11 +16,12 @@ if nargin<2 || isempty(t)
     t = 1;
 end
 
+%Sort first for the dates and then for the alarms, now we have a table with alarms with the same id order in time 
 T = sortrows(T,'date');
 T = sortrows(T,'id');
 
 %% Delete similar alarms reoccuring within time t in minutes (chattering) 
-tDiff=t/(24*60);
+tDiff=t/(24*60);%% convert minutes to days 
 rDelete=zeros(height(T),1);
 
 for i=min(T.id):max(T.id)

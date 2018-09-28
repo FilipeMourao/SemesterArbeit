@@ -1,3 +1,4 @@
+%What is the energy distance?
 function [H,A,B] = eDist(T)
 
 %% Calculate Energy Distance

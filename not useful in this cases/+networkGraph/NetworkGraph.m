@@ -1,8 +1,10 @@
+%%Dont know which network graph is it being build with the gravitational
+%multiplu constants
 function [X,Fa,Fr,Fg] = NetworkGraph(A,ka,kr,kg,s,w,Dim,iMax,saveDir)
 %% Create network graph 
 %
 % Output:
-% P:  Position
+% X:  Position
 % Fa: Attraction Force
 % Fr: Repulsion Force
 % Fg: Gravitational Force
