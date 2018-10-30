@@ -1,5 +1,5 @@
-function [conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities,idMaps] = ...
-creatingConditionalMatrix(T,minimumTimeSeconds, maximumTimeMinutes,numberOfPreviousAlarmConsidered)
+function [conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities,idMaps,occurencesMatrix]= ...
+CreatingConditionalMatrixByTime(T,minimumTimeSeconds, maximumTimeMinutes,timeIntervalMinutes)
 
 %% Create conditional matrix of alarms 
 % Input
@@ -20,8 +20,8 @@ end
 if  isempty(maximumTimeMinutes)
     maximumTimeMinutes = 10;
 end
-if  isempty(numberOfPreviousAlarmConsidered)
-    numberOfPreviousAlarmConsidered = 1;
+if  isempty(timeIntervalMinutes)
+    timeIntervalMinutes = 5;
 end
 %% Pre processing 
 %exclude all unecessary and incomplete values of the data set
@@ -39,12 +39,22 @@ conditionalMatrixNN= zeros(numberOfDifferentIds);
 
 %% Compute occurence matrix
 iDColum = TSortedByTime.('UniqueIDs');
-for i=1:length(iDColum)% go through the id colum in the table
-    for j=1:numberOfPreviousAlarmConsidered% number of next alarm 
-        if( (i + j < length(iDColum)) &&(iDColum(i) ~= iDColum(i + j) )  )% if we are not at the end of the colum, keep increasing the matrix
-            occurencesMatrix(iDColum(i),iDColum(i)) = occurencesMatrix(iDColum(i),iDColum(i)) + 1;
-            occurencesMatrix(iDColum(i + j),iDColum(i)) = occurencesMatrix(iDColum(i + j),iDColum(i)) + 1;            
+starrtingTime = TSortedByTime.('starttime');
+for i=1:length(iDColum) - 1% go through the id colum in the table
+    length(iDColum)
+    i
+    j = i + 1;
+    timeTest = (datenum(starrtingTime(j)) - datenum(starrtingTime(i)))*24*60;
+    occurencesMatrix(iDColum(i),iDColum(i)) = occurencesMatrix(iDColum(i),iDColum(i)) + 1;
+    while( (j < length(iDColum) )&& ... 
+        (iDColum(i) ~= iDColum(j)) && ...
+            timeTest < timeIntervalMinutes )
+        if(j > i + 1)
+             occurencesMatrix(iDColum(i),iDColum(i)) = occurencesMatrix(iDColum(i),iDColum(i)) + 1;
         end
+            occurencesMatrix(iDColum(j),iDColum(i)) = occurencesMatrix(iDColum(j),iDColum(i)) + 1;
+            timeTest = (datenum(starrtingTime(j)) - datenum(starrtingTime(i)))*24*60;
+            j = j + 1;
     end
 end
 %% Compute conditional probability  matrixes

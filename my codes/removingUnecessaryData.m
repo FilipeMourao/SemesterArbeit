@@ -1,4 +1,4 @@
-function [tSorted,IDMap] = removingUnecessaryData(T,minimumTime, maximumTime)
+function [tSorted,IDMap] = removingUnecessaryData(T,minimumTimeSeconds, maximumTimeMinutes)
 
 %% Create new consecutive IDs
 % 
@@ -16,11 +16,11 @@ oID = 'FehlerID';%string, name of old ID column (e.g. alarm name or description)
 nID = 'UniqueIDs';%string, name of new ID column (unique number for every unique old ID)
 rowsToExclude = T.(oID) == 1;
 T(rowsToExclude,:) = []; 
-if  isempty(minimumTime)
-    minimumTime = 10;
+if  isempty(minimumTimeSeconds)
+    minimumTimeSeconds = 10;
 end
-if  isempty(maximumTime)
-    maximumTime = 10;
+if  isempty(maximumTimeMinutes)
+    maximumTimeMinutes = 10;
 end
 
 
@@ -39,10 +39,10 @@ T(rowsWithChatteringTime,:) = [];
 %%remove chattering 
 %datenum convert a date in the number of days passed from January 0 ,0000
 %we need to convert the days in seconds so we need to multiply by 24*3600
-rowsWithChatteringTime = ( datenum(T.('endtime')(:)) - datenum(T.('starttime')(:)) )*24*3600 < minimumTime;
+rowsWithChatteringTime = ( datenum(T.('endtime')(:)) - datenum(T.('starttime')(:)) )*24*3600 < minimumTimeSeconds;
 T(rowsWithChatteringTime,:) = [];
 %% remove long alarms
-rowsWithLongTimeAlarms = ( datenum(T.('endtime')(:)) - datenum(T.('starttime')(:)) )*24*60 > maximumTime;
+rowsWithLongTimeAlarms = ( datenum(T.('endtime')(:)) - datenum(T.('starttime')(:)) )*24*60 > maximumTimeMinutes;
 T(rowsWithLongTimeAlarms,:) = [];
 %% sorting by start time 
 T = sortrows(T,  find(strcmpi(T.Properties.VariableNames,'starttime')) );
