@@ -1,5 +1,5 @@
-function [independentFractalEntropyMatrix, conditionalFractalEntropyMatrix,idMaps] = ...
-calculatingFractalEntropyByTime(T,minimumTimeSeconds, maximumTimeMinutes,timeIntervalMinutes)
+function [independentFractalEntropyMatrix, conditionalFractalEntropyMatrix] = ...
+calculatingFractalEntropyByTime(conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities)
 
 %% Create conditional matrix of alarms 
 % Input
@@ -14,18 +14,7 @@ calculatingFractalEntropyByTime(T,minimumTimeSeconds, maximumTimeMinutes,timeInt
 % occurencesMatrix: Matrix with the occurences between 2 alarms
 %conditionalMatrix: Matrix containing the conditional probabilities between
 %alarms
-if  isempty(minimumTimeSeconds)
-    minimumTimeSeconds = 10;
-end
-if  isempty(maximumTimeMinutes)
-    maximumTimeMinutes = 10;
-end
-if  isempty(timeIntervalMinutes)
-    timeIntervalMinutes = 1;
-end
 %%
-[conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities,idMaps]...
-= CreatingConditionalMatrixByTime(T,minimumTimeSeconds, maximumTimeMinutes,timeIntervalMinutes);
 %Pre allocation of memory
 independentFractalEntropyMatrix= zeros(length(conditionalMatrixPP),1);
 conditionalFractalEntropyMatrix= zeros(length(conditionalMatrixPP));
