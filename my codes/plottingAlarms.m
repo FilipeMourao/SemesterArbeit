@@ -1,8 +1,9 @@
 function  plottingAlarms()
     T = load('table.mat');
+    T=T.T;
     oID = 'FehlerID';%string, name of old ID column (e.g. alarm name or description)
     nID = 'UniqueIDs';%string, name of new ID column (unique number for every unique old ID)
-    rowsToExclude = T.(oID) == 1;
+    rowsToExclude = T.('FehlerID') == 1;
     T(rowsToExclude,:) = []; 
     %% Assign unique number to every unique ID
     uniqueID=unique(T.(oID));
@@ -59,7 +60,7 @@ function  plottingAlarms()
 %         plot(plottingArrayX,meanArray,'LineWidth',3);
 %         legend('Value per occurance',join(['mean = ', num2str(timeMean),' seconds']))
 %         hold off
-         
+%          
 %         %Plot type 2
 %         currentSum = 0;
 %         plottingArray = zeros(length(timeCalculation),1);
@@ -101,6 +102,8 @@ function  plottingAlarms()
         end
         axis([0 plottingArray(length(plottingArray)) + 10 0 2])
         legend('Alarm start','Alarm end')
+        set(gca,'xtick',[])
+        set(gca,'ytick',[])
         hold off
 %         
 %                 %Plot type 4

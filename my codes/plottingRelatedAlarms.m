@@ -75,8 +75,6 @@ function  plottingRelatedAlarms()
     end
    
         scatter(coordinatesOfTheAlarms(:,1),coordinatesOfTheAlarms(:,2));
-        value = IDMap(number,2);
-        title(join(['Time between StartTime and EndTime of alarm ', num2str(value{1})]));
         %title('Time between StartTime and EndTime of alarm ');
 %         xlabel('Number of times this alarm was triggered');
 %         ylabel('Difference in seconds');
