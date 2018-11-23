@@ -1,4 +1,5 @@
-function  plottingAlarms(T)
+function  plottingAlarms()
+    T = load('table.mat');
     oID = 'FehlerID';%string, name of old ID column (e.g. alarm name or description)
     nID = 'UniqueIDs';%string, name of new ID column (unique number for every unique old ID)
     rowsToExclude = T.(oID) == 1;

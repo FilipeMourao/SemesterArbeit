@@ -1,4 +1,4 @@
-function [independentFractalEntropyMatrix, conditionalFractalEntropyMatrix] = ...
+function [ conditionalFractalEntropyMatrix] = ...
 calculatingFractalEntropyByTime(conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities)
 
 %% Create conditional matrix of alarms 
@@ -16,35 +16,34 @@ calculatingFractalEntropyByTime(conditionalMatrixPP,conditionalMatrixNP,conditio
 %alarms
 %%
 %Pre allocation of memory
-independentFractalEntropyMatrix= zeros(length(conditionalMatrixPP),1);
 conditionalFractalEntropyMatrix= zeros(length(conditionalMatrixPP));
+%H(X|Y) = P(X,Y)*log[P(X|Y)]      + P(~X,Y)*log[P(~X|Y)]      +  P(X,~Y)*log[P(X|~Y)]       + P(~X,~Y)*log[P(~X|~Y)]
+%H(X|Y) = P(X|Y)*P(Y)*log[P(X|Y)] + P(~X|Y)*P(Y)*log[P(~X|Y)] +  P(X|~Y)*P(~Y)*log[P(X|~Y)] + P(~X|~Y)*P(~Y)*log[P(~X|~Y)]
 for i=1:length(conditionalFractalEntropyMatrix)
-    if(independentFractalEntropyMatrix(i) ~= 1 && independentFractalEntropyMatrix(i) ~= 0)
-            independentFractalEntropyMatrix(i) = -(...
-        independentProbabilities(i)*real(log(independentProbabilities(i)))...
-        + (1 - independentProbabilities(i))*real(log(1 - independentProbabilities(i)))...
-);
-    else
-        independentFractalEntropyMatrix(i) = 0;
-    end
-    
- 
     for j=1:length(conditionalFractalEntropyMatrix)
+        % there are some alarms much more frequents than others so the independent probability of great part of the alarms is almost zero
+        % P(X|Y)*P(Y)*log[P(X|Y)] 
         if (conditionalMatrixPP(i,j) ~= 0 )
         conditionalFractalEntropyMatrix(i,j) = conditionalFractalEntropyMatrix(i,j) + ...  
         conditionalMatrixPP(i,j)*independentProbabilities(j)*real(log(conditionalMatrixPP(i,j)));
         end
-        if (conditionalMatrixPN(i,j) ~= 0 )
-        conditionalFractalEntropyMatrix(i,j) = conditionalFractalEntropyMatrix(i,j) + ...  
-        conditionalMatrixPN(i,j)*independentProbabilities(j)*real(log(conditionalMatrixPN(i,j)));
-        end
+        
+        % P(~X|Y)*P(Y)*log[P(~X|Y)] ->  P(~X|Y) almost 1
         if (conditionalMatrixNP(i,j) ~= 0 )
         conditionalFractalEntropyMatrix(i,j) = conditionalFractalEntropyMatrix(i,j) + ...  
         conditionalMatrixNP(i,j)*independentProbabilities(j)*real(log(conditionalMatrixNP(i,j)));
         end
+        
+        % P(X|~Y)*P(~Y)*log[P(X|~Y)] 
+        if (conditionalMatrixPN(i,j) ~= 0 )
+        conditionalFractalEntropyMatrix(i,j) = conditionalFractalEntropyMatrix(i,j) + ...  
+        conditionalMatrixPN(i,j)*(1 - independentProbabilities(j))*real(log(conditionalMatrixPN(i,j)));
+        end
+
+        %  P(~X|~Y)*P(~Y)*log[P(~X|~Y)] -> log[P(~X|~Y) almost 1
         if (conditionalMatrixNN(i,j) ~= 0 )
         conditionalFractalEntropyMatrix(i,j) = conditionalFractalEntropyMatrix(i,j) + ...  
-        conditionalMatrixNN(i,j)*independentProbabilities(j)*real(log(conditionalMatrixNN(i,j)));
+        conditionalMatrixNN(i,j)*(1 - independentProbabilities(j))*real(log(conditionalMatrixNN(i,j)));
         end
     conditionalFractalEntropyMatrix(i,j) = - conditionalFractalEntropyMatrix(i,j);
     end
