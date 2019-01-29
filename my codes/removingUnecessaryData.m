@@ -1,4 +1,4 @@
-function [tSorted,IDMap] = removingUnecessaryData(T,minimumTimeSeconds, maximumTimeMinutes)
+function [tSorted,IDMap] = removingUnecessaryData(T,minimumTimeSeconds, maximumTimeMinutes,minimumAlarmOcurrences)
 
 %% Create new consecutive IDs
 % 
@@ -46,6 +46,24 @@ rowsWithLongTimeAlarms = ( datenum(T.('endtime')(:)) - datenum(T.('starttime')(:
 T(rowsWithLongTimeAlarms,:) = [];
 %% sorting by start time 
 T = sortrows(T,  find(strcmpi(T.Properties.VariableNames,'starttime')) );
+
+
+%% Get unique IDs from old column in T
+uniqueID=unique(T.(oID));
+
+
+%% Eliminate alarms that occur not that often
+rowsToExclude = zeros(length(T.(oID)),1);
+for i = 1:length(uniqueID)
+    countingArray = T.(oID) == uniqueID(i);
+    countOfCurrentElement = sum(countingArray);
+    if(countOfCurrentElement < minimumAlarmOcurrences) 
+        rowsToExclude = rowsToExclude + countingArray;
+    end
+end
+rowsToExclude = logical(rowsToExclude);
+T(rowsToExclude,:) = []; 
+
 %% Get unique IDs from old column in T
 uniqueID=unique(T.(oID));
 

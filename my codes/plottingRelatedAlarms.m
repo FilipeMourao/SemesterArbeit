@@ -44,20 +44,27 @@ function  plottingRelatedAlarms()
 %         set(gca,'ytick',[])
 %         hold off 
 %         
-    sizeOfthePointDifference = 100;
-    clusterAlarmsConditionalProbability_0_1 = cell2mat(struct2cell(load('relatedAlarmsByProbability/clusterAlarmsConditionalProbability_0.1.mat')));
-    clusterAlarmsConditionalProbability_0_2 = cell2mat(struct2cell(load('relatedAlarmsByProbability/clusterAlarmsConditionalProbability_0.2.mat')));
-    clusterAlarmsConditionalProbability_0_3 = cell2mat(struct2cell(load('relatedAlarmsByProbability/clusterAlarmsConditionalProbability_0.3.mat')));
-    clusterAlarmsConditionalProbability_0_4 = cell2mat(struct2cell(load('relatedAlarmsByProbability/clusterAlarmsConditionalProbability_0.4.mat')));
+    sizeOfthePointDifference = 1;
     clusterAlarmsConditionalProbability_0_5 = cell2mat(struct2cell(load('relatedAlarmsByProbability/clusterAlarmsConditionalProbability_0.5.mat')));
-    coordinatesOfTheAlarms = zeros(size(clusterAlarmsConditionalProbability_0_4,2),2);
-    positionMatrix = zeros(26);
-    centerPositionOfTheAlarmX = 13;
-    centerPositionOfTheAlarmY = 13;
+    clusterAlarmsConditionalProbability_0_55 = cell2mat(struct2cell(load('relatedAlarmsByProbability/clusterAlarmsConditionalProbability_0.55.mat')));
+    clusterAlarmsConditionalProbability_0_6 = cell2mat(struct2cell(load('relatedAlarmsByProbability/clusterAlarmsConditionalProbability_0.6.mat')));
+    clusterAlarmsConditionalProbability_0_7 = cell2mat(struct2cell(load('relatedAlarmsByProbability/clusterAlarmsConditionalProbability_0.7.mat')));
+    clusterAlarmsConditionalProbability_0_8 = cell2mat(struct2cell(load('relatedAlarmsByProbability/clusterAlarmsConditionalProbability_0.8.mat')));
+    coordinatesOfTheAlarms = zeros(size(clusterAlarmsConditionalProbability_0_7,2),2);
+    numberOfRows = ceil(sqrt(size(clusterAlarmsConditionalProbability_0_8,1)));
+    positionMatrix = zeros(numberOfRows);
+    mimimumNumberOfGroups = size(clusterAlarmsConditionalProbability_0_8,1);
+    centerPositionOfTheAlarmX = ceil(numberOfRows/2);
+    centerPositionOfTheAlarmY = ceil(numberOfRows/2);
+%     positionMatrix = zeros(26);
+%     centerPositionOfTheAlarmX = 13;
+%     centerPositionOfTheAlarmY = 13;
     clusterAlarms = clusterAlarmsConditionalProbability_0_5;
+    clusterAlarms_2 = clusterAlarmsConditionalProbability_0_7;
     for i=1:size(clusterAlarms,1)
-        [X,Y] = takeAvailablePosition(positionMatrix,centerPositionOfTheAlarmX,centerPositionOfTheAlarmY);
-        positionMatrix(X,Y) = i;
+        [X,Y] = takeAvailablePosition(positionMatrix,centerPositionOfTheAlarmX,centerPositionOfTheAlarmY,mimimumNumberOfGroups);
+      %  positionMatrix(X,Y) = i;
+        positionMatrix(X,Y) = 1;
         for j=1:nnz(clusterAlarms(i,:))
             coordinatesOfTheAlarms(clusterAlarms(i,j),1) = sizeOfthePointDifference*(rand*0.8 + 0.1 + X);
             coordinatesOfTheAlarms(clusterAlarms(i,j),2) = sizeOfthePointDifference*(rand*0.8 + 0.1 + Y);
@@ -83,70 +90,96 @@ function  plottingRelatedAlarms()
         hold off 
         
 end
-function [X,Y] = takeAvailablePosition(positionMatrix,X,Y)
+function [X,Y] = takeAvailablePosition(positionMatrix,X,Y,mimimumNumberOfGroups)
 %     X = size(positionMatrix,1)/2;
-%     Y = size(positionMatrix,1)/2;
+%     Y = size(positionMatrix,1)/2;]
+      constantIncrease = 1;
     if(positionMatrix(X,Y) == 0)
-            return;
+           return;
     end
     constantValue = 1;
     constantValueX = 1;
     constantValueY = 1;
     i = 0;
     while(true)
-       if(positionMatrix(X - constantValueX ,Y) == 0)
-           X = X - constantValueX; 
+        if(X - constantValueX > 0 )
+          
+            if( positionMatrix(X - constantValueX ,Y) == 0)
+                X = X - constantValueX; 
            break;
-       end 
-        if(positionMatrix(X - constantValueX ,Y + constantValueY ) == 0)
-           X = X - constantValueX;
-           Y = Y + constantValueY; 
-           break;
-        end
+           end
+           
+                   if( Y + constantValueY  < size(positionMatrix,1) + 1 && positionMatrix(X - constantValueX ,Y + constantValueY ) == 0)
+                          X = X - constantValueX;
+                          Y = Y + constantValueY; 
+                   break;
+                   end 
+                   if(Y - constantValueY > 0 && positionMatrix(X - constantValueX ,Y - constantValueY ) == 0)
+                       X = X - constantValueX;
+                       Y = Y - constantValueY; 
+                       break;
+                   end
+                   
        
-        if(positionMatrix(X  ,Y + constantValueY ) == 0)
-           Y = Y + constantValueY; 
-           break;
-       end 
+        end
+        
+        if(Y - constantValueY > 0 )
+           if(positionMatrix(X  ,Y - constantValueY ) == 0)
+                Y = Y - constantValueY; 
+                break;
+           end
+        
+           if(X + constantValueX  < size(positionMatrix,1) + 1 && positionMatrix(X + constantValueX  ,Y - constantValueY ) == 0)
+               X = X + constantValueX;
+               Y = Y - constantValueY; 
+               break;
+           end
+        end
+        if(Y + constantValueY  < size(positionMatrix,1))
+            if(positionMatrix(X  ,Y + constantValueY ) == 0)
+               Y = Y + constantValueY; 
+               break;
+            end 
+            if( X + constantValueX  < size(positionMatrix,1)+ 1 && positionMatrix(X + constantValueX  ,Y + constantValueY ) == 0)
+                    Y = Y + constantValueY;
+                    X = X + constantValueX;
+                    break;
+            end 
+
+
+        end
+            if( X + constantValueX  < size(positionMatrix,1) + 1 && positionMatrix(X + constantValueX  ,Y ) == 0)
+                    X = X + constantValueX;
+                    break;
+            end 
 
        
-       if(positionMatrix(X + constantValueX  ,Y + constantValueY ) == 0)
-           Y = Y + constantValueY;
-           X = X + constantValueX;
-           break;
-       end 
-       
-       if(positionMatrix(X + constantValueX ,Y) == 0)
-           X = X + constantValueX; 
-           break;
-       end
-       
-       if(positionMatrix(X + constantValueX  ,Y - constantValueY ) == 0)
-           X = X + constantValueX;
-           Y = Y - constantValueY; 
-           break;
-       end
-       if(positionMatrix(X  ,Y - constantValueY ) == 0)
-           Y = Y - constantValueY; 
-           break;
-       end
-       
-       if(positionMatrix(X - constantValueX ,Y - constantValueY ) == 0)
-           X = X - constantValueX;
-           Y = Y - constantValueY; 
-           break;
-       end
        
        constantValue = constantValue + 1;
        switch rem(i,3)
            case 0
-               constantValueX =  constantValueX + 1;
+               constantValueX =  constantValueX + constantIncrease;
            case 1
-               constantValueX =  constantValueX - 1;
-               constantValueY =  constantValueY + 1;
+               constantValueX =  constantValueX - constantIncrease;
+               constantValueY =  constantValueY + constantIncrease;
            case 2 
-               constantValueX =  constantValueX + 1;
+               constantValueX =  constantValueX + constantIncrease;
+       end
+       if( X + constantValueX > size(positionMatrix,1) + 1 && Y + constantValueY > size(positionMatrix,1) + 1)
+           constantIncrease = constantIncrease + 1; 
+           constantValueX = 1;
+           constantValueY = 1;
        end
        i = i + 1;
     end
+end
+function [related] = checkIfTheAlarmsAreRelated(alarmGroup1,alarmGroup2,clusterWithMinorProbability)
+related = false;
+for i=1:size(clusterWithMinorProbability,1)
+    if(boolean(prod(ismember(alarmGroup1,clusterWithMinorProbability(i,:)))*prod(ismember(alarmGroup2,clusterWithMinorProbability(i,:)))))
+        related = true;
+    end
+end
+
+
 end

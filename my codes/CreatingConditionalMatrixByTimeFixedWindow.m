@@ -1,5 +1,5 @@
 function [conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities,idMaps,occurencesMatrix]= ...
-CreatingConditionalMatrixByTime(T,minimumTimeSeconds, maximumTimeMinutes,timeIntervalMinutes,minimumAlarmOcurrences)
+CreatingConditionalMatrixByTimeFixedWindow(T,minimumTimeSeconds, maximumTimeMinutes,timeIntervalMinutes,minimumAlarmOcurrences)
 
 %% Create conditional matrix of alarms 
 % Input
@@ -40,30 +40,55 @@ conditionalMatrixNN= zeros(numberOfDifferentIds);
 %% Compute occurence matrix
 iDColum = TSortedByTime.('UniqueIDs');
 starrtingTime = TSortedByTime.('starttime');
-for i=1:length(iDColum) - 1% go through the id colum in the table
+
+lastRow = 1;
+while(lastRow < length(iDColum))
     length(iDColum)
-    i
-    j = i + 1;
-    timeTest = (datenum(starrtingTime(j)) - datenum(starrtingTime(i)))*24*60;
-   % occurencesMatrix(iDColum(i),iDColum(i)) = occurencesMatrix(iDColum(i),iDColum(i)) + 1;
-    relatedAlarms = [];
-    while( (j < length(iDColum) )&& ... 
-        (iDColum(i) ~= iDColum(j)) && ...
-            timeTest < timeIntervalMinutes )
-%              occurencesMatrix(iDColum(i),iDColum(i)) = occurencesMatrix(iDColum(i),iDColum(i)) + 1;
-            %occurencesMatrix(iDColum(j),iDColum(i)) = occurencesMatrix(iDColum(j),iDColum(i)) + 1;
-            % problem with the sequence ABCBA consider B just one time, twice or cosider A and B twice?
-            % problem with the P(A&&B)!= P(B&&A)
-            if( ~(ismember(iDColum(j), relatedAlarms)))
-                relatedAlarms = [relatedAlarms,iDColum(j)];
-               occurencesMatrix(iDColum(i),iDColum(j)) = occurencesMatrix(iDColum(i),iDColum(j)) + 1;
-               occurencesMatrix(iDColum(j),iDColum(i)) = occurencesMatrix(iDColum(j),iDColum(i)) + 1;
-               occurencesMatrix(iDColum(i),iDColum(i)) = occurencesMatrix(iDColum(i),iDColum(i)) + 1;
-               occurencesMatrix(iDColum(j),iDColum(j)) = occurencesMatrix(iDColum(j),iDColum(j)) + 1;
-            end
-            timeTest = (datenum(starrtingTime(j)) - datenum(starrtingTime(i)))*24*60;
-            j = j + 1;
-   end
+    lastRow
+    firstRow = lastRow + 1;
+    timeTest = (datenum(starrtingTime(lastRow)) - datenum(starrtingTime(firstRow)))*24*60;
+    while(timeTest < timeIntervalMinutes)
+        lastRow = lastRow + 1;
+        timeTest = (datenum(starrtingTime(lastRow)) - datenum(starrtingTime(firstRow)))*24*60;
+    end
+    % Counting with the limitant of an alarm ABCCABCBC 
+%|2 2 2|
+%|2 3 3|
+%|2 3 4|
+
+    %Condider just the group alarm, which alarms appear in this group
+    alarmsAppearingInTheInterval = iDColum(firstRow:lastRow);
+    uniqueIDInterval=unique(alarmsAppearingInTheInterval);
+    uniqueIDIntervalOccurences=unique(alarmsAppearingInTheInterval);
+    for i = 1:length(uniqueIDInterval)
+     countingArray = alarmsAppearingInTheInterval == uniqueIDInterval(i);
+     uniqueIDIntervalOccurences(i) = sum(countingArray);   
+    end
+    for i = 1:length(uniqueIDInterval)
+        occurencesMatrix(uniqueIDInterval(i),uniqueIDInterval(i)) = ...
+            occurencesMatrix(uniqueIDInterval(i),uniqueIDInterval(i))  + uniqueIDIntervalOccurences(i) ;
+        for j = i+1:length(uniqueIDInterval)
+            occurencesMatrix(uniqueIDInterval(i),uniqueIDInterval(j)) = ...
+                occurencesMatrix(uniqueIDInterval(i),uniqueIDInterval(j))  + min(uniqueIDIntervalOccurences(i),uniqueIDIntervalOccurences(j)) ;
+            occurencesMatrix(uniqueIDInterval(j),uniqueIDInterval(i)) = ...
+                occurencesMatrix(uniqueIDInterval(j),uniqueIDInterval(i))  + min(uniqueIDIntervalOccurences(i),uniqueIDIntervalOccurences(j)) ;
+        end
+        
+    end
+%     for i=firstRow:lastRow
+%         length(iDColum)
+%         i
+%         for j = i:lastRow
+%             if(iDColum(i) ~= iDColum(j))
+%                    occurencesMatrix(iDColum(i),iDColum(j)) = occurencesMatrix(iDColum(i),iDColum(j)) + 1;
+%                    occurencesMatrix(iDColum(j),iDColum(i)) = occurencesMatrix(iDColum(j),iDColum(i)) + 1;
+%                    occurencesMatrix(iDColum(i),iDColum(i)) = occurencesMatrix(iDColum(i),iDColum(i)) + 1;
+%                    occurencesMatrix(iDColum(j),iDColum(j)) = occurencesMatrix(iDColum(j),iDColum(j)) + 1;
+%             end
+%         end
+% 
+%     end
+
 end
 %% Compute conditional probability  matrixes
 

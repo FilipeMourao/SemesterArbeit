@@ -2,13 +2,16 @@
 load('table.mat');
 maximumTimeMinutes = 10; 
 minimumTimeSeconds = 10;
+minimumAlarmOcurrences = 20;
 timeIntervalMinutes = 10;
-minimumProbability = 0.3;
+minimumProbability = 0.7;
 maximumFractalEntropyValue = 10e-5;
 
 %% Getting conditional Matrix
 [conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities,idMaps,occurencesMatrix]...
-= CreatingConditionalMatrixByTime(T,minimumTimeSeconds, maximumTimeMinutes,timeIntervalMinutes);
+= CreatingConditionalMatrixByTimeFixedWindow(T,minimumTimeSeconds, maximumTimeMinutes,timeIntervalMinutes,minimumAlarmOcurrences);
+% [conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities,idMaps,occurencesMatrix]...
+% = CreatingConditionalMatrixByTime(T,minimumTimeSeconds, maximumTimeMinutes,timeIntervalMinutes,minimumAlarmOcurrences);
 %LoadConditionalMatrixes
 % load('conditionalMatrixByTime/20_minutes/conditionalMatrixPP.mat');
 % load('conditionalMatrixByTime/20_minutes/conditionalMatrixPN.mat');
