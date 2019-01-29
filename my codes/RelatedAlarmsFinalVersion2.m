@@ -71,14 +71,15 @@ function  plottingRelatedAlarms()
         if k < numberOfClusters
                  valueToIncreasePerGroup = valueToIncreasePerGroup*zoomArray(k);
         end
-    end   
+    end
         scatter(coordinatesOfTheAlarms(:,1),coordinatesOfTheAlarms(:,2));
         %title('Time between StartTime and EndTime of alarm ');
 %         xlabel('Number of times this alarm was triggered');
 %         ylabel('Difference in seconds');
         set(gca,'xtick',[])
         set(gca,'ytick',[])
-        hold off 
+        hold off;
+        %        legend({'0.8','0.7','0.6','0.55','0.5','alarms'},'Location','north')
         
 end
 function [zoomValue] = zoomIn(zoomMatrix, numberToPower)
