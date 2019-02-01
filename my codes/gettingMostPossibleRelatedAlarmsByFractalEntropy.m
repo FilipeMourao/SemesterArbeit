@@ -1,6 +1,6 @@
 function [relatedAlarmsFractalEntropy,calculatedProbabilitiesFractalEntropy] = ...
     gettingMostPossibleRelatedAlarmsByFractalEntropy ...
-( conditionalFractalEntropyMatrix,maximumFractalEntropyValue)
+( conditionalFractalEntropyMatrix,minimumFractalEntropyValue)
 
 
 %Pre allocation of memory
@@ -13,7 +13,7 @@ for i=1:size(conditionalFractalEntropyMatrix,1)
      conditionalFractalEntropyMatrix(i,i) = 1;
     for j = 1:size(conditionalFractalEntropyMatrix,1)
         currentlyValue = conditionalFractalEntropyMatrix(i,j) 
-        if  conditionalFractalEntropyMatrix(i,j) < maximumFractalEntropyValue
+        if  conditionalFractalEntropyMatrix(i,j) > minimumFractalEntropyValue
             alarms  = [alarms,conditionalFractalEntropyMatrix(i,j)];
             alarmsFractalEntropies =[alarmsFractalEntropies,j];
         end
