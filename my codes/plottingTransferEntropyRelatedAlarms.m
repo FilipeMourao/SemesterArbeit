@@ -1,30 +1,19 @@
-function  plottingRelatedAlarms() 
+function  plottingTransferEntropyRelatedAlarms() 
     clusterNames = [
-        "clusterAlarmsConditionalProbability_0.8.mat"
-         "clusterAlarmsConditionalProbability_0.7.mat"
-        "clusterAlarmsConditionalProbability_0.6.mat"
-        "clusterAlarmsConditionalProbability_0.55.mat"
-        "clusterAlarmsConditionalProbability_0.5.mat"
+        "clusterAlarmsTransferEntropy10-2.mat"
+         "clusterAlarmsTransferEntropy10-3.mat"
+         "clusterAlarmsTransferEntropy10-4.mat"
+         "clusterAlarmsTransferEntropy10-5.mat"
         
     ]
-    clusterProbabilities = [
-        "Clusters 0.8 prob"
-        "Clusters 0.7 prob"
-        "Clusters 0.6 prob"
-        "Clusters 0.55 prob"
-        "Clusters 0.5 prob"
-        
-    ]
-    numberOfClusters = size(clusterNames,1);
  %   numberOfClusters = 2;
     %%Ploting the first points in the most distant group
-    clusterAlarms = cell2mat(struct2cell(load('relatedAlarmsByProbability/' + clusterNames(1))));
+    clusterAlarms = cell2mat(struct2cell(load('relatedAlarmsTransferEntropy/' + clusterNames(1))));
+    numberOfClusters = size(clusterNames,1);
     coordinatesOfTheAlarms = zeros(size(clusterAlarms,2),2);
-    plotDeslocation = 0;
     valueToIncreasePerGroup = 1;
     %zoomPerCluster = 100;
     zoomArray = [];
-    zoomPerCluster  = 1;
     for i=1:size(clusterAlarms,1)
            for j=1:nnz(clusterAlarms(i,:))
                 coordinatesOfTheAlarms(clusterAlarms(i,j),1) = coordinatesOfTheAlarms(clusterAlarms(i,j),1)...
@@ -38,7 +27,7 @@ function  plottingRelatedAlarms()
         zoomPerCluster = getZoom(size(clusterAlarms,1));
         zoomArray = [zoomArray,zoomPerCluster];
         valueToIncreasePerGroup = valueToIncreasePerGroup*zoomPerCluster;
-        clusterAlarms = cell2mat(struct2cell(load('relatedAlarmsByProbability/' + clusterNames(k))));
+        clusterAlarms = cell2mat(struct2cell(load('relatedAlarmsTransferEntropy/' + clusterNames(k))));
         for i=1:size(clusterAlarms,1)
             increasePerGroup =  (i + 0.3)*valueToIncreasePerGroup;
             for j=1:nnz(clusterAlarms(i,:))
@@ -51,7 +40,7 @@ function  plottingRelatedAlarms()
     %% Plotting the results
     valueToIncreasePerGroup = 1;
     for k=1:numberOfClusters
-        clusterAlarms = cell2mat(struct2cell(load('relatedAlarmsByProbability/' + clusterNames(k))));
+        clusterAlarms = cell2mat(struct2cell(load('relatedAlarmsTransferEntropy/' + clusterNames(k))));
         for i=1:size(clusterAlarms,1)
             zoomValue = zoomIn(zoomArray,k);
             xDeslocation = floor(coordinatesOfTheAlarms(clusterAlarms(i,1),1)/zoomValue)*zoomValue;
