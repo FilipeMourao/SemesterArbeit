@@ -19,13 +19,10 @@ calculatingTransferEntropyByTime(conditionalMatrixPP,conditionalMatrixNP,conditi
 conditionalEntropyMatrix= zeros(length(conditionalMatrixPP));
 independentEntropyMatrix= zeros(length(independentProbabilities),1);
 transferEntropyMatrix= zeros(length(conditionalMatrixPP));
-roundNumber = 10;
 %H(X) = P(X)*log[P(X)]  + P(~X)*log[P(~X)]
 for i=1:length(independentProbabilities)
-%     independentEntropyMatrix(i) = -( independentProbabilities(i)*real(log(independentProbabilities(i))) + ...
-%     (1-independentProbabilities(i))*real(log(1-independentProbabilities(i)))); 
-    independentEntropyMatrix(i) = -round( independentProbabilities(i)*real(log(independentProbabilities(i))) + ...
-    (1-independentProbabilities(i))*real(log(1-independentProbabilities(i))),roundNumber); 
+    independentEntropyMatrix(i) = -(independentProbabilities(i)*real(log(independentProbabilities(i))) + ...
+    (1-independentProbabilities(i))*real(log(1-independentProbabilities(i)))); 
 end
 %H(X|Y) = P(X,Y)*log[P(X|Y)]      + P(~X,Y)*log[P(~X|Y)]      +  P(X,~Y)*log[P(X|~Y)]       + P(~X,~Y)*log[P(~X|~Y)]
 %H(X|Y) = P(X|Y)*P(Y)*log[P(X|Y)] + P(~X|Y)*P(Y)*log[P(~X|Y)] +  P(X|~Y)*P(~Y)*log[P(X|~Y)] + P(~X|~Y)*P(~Y)*log[P(~X|~Y)]
@@ -55,8 +52,7 @@ for i=1:length(conditionalEntropyMatrix)
         conditionalEntropyMatrix(i,j) = conditionalEntropyMatrix(i,j) + ...  
         conditionalMatrixNN(i,j)*(1 - independentProbabilities(j))*real(log(conditionalMatrixNN(i,j)));
         end
-%     conditionalEntropyMatrix(i,j) = - conditionalEntropyMatrix(i,j);
-    conditionalEntropyMatrix(i,j) = - round(conditionalEntropyMatrix(i,j),roundNumber);
+    conditionalEntropyMatrix(i,j) = - conditionalEntropyMatrix(i,j);
     end
 end
 %T(X->Y) = H(Y) - H(Y|X)
@@ -68,7 +64,6 @@ for i=1:length(conditionalEntropyMatrix)
         end
     end
 end
-
 
 end
 

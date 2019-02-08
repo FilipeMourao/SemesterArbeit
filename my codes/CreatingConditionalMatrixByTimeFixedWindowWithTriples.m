@@ -76,7 +76,7 @@ while(lastRow < length(iDColum))
             %updatig the triple matrix 
             for k = j+1:length(uniqueIDInterval)
                 uniqueString = mappingNumbersIntoString(uniqueIDInterval(i),uniqueIDInterval(j),uniqueIDInterval(k));
-                mapTriples(uniqueString) = min(min(uniqueIDIntervalOccurences(i),uniqueIDIntervalOccurences(j)),uniqueIDIntervalOccurences(k));    
+                mapTriples(uniqueString) = mapTriples(uniqueString) + min(min(uniqueIDIntervalOccurences(i),uniqueIDIntervalOccurences(j)),uniqueIDIntervalOccurences(k));    
             end
         end
         

@@ -18,10 +18,7 @@ conditionalMatrixPP,conditionalMatrixPN,conditionalMatrixNP,conditionalMatrixNN,
                     %calculate the DET
                     directPath = true;
                     for k = 1:size(occurencesMatrix,1)
-                        if((k ~= i && k ~=j )&&((transferEntropyMatrix(i,j) > 0 &&...
-                            transferEntropyMatrix(i,k) > 0 && transferEntropyMatrix(k,j) > 0)...
-                            || (transferEntropyMatrix(j,i) > 0 &&...
-                            transferEntropyMatrix(j,k) > 0 && transferEntropyMatrix(k,i) > 0)) )
+                        if(k ~= i && k ~=j )
                           DETValue = 0;
                           numberString = mappingNumbersIntoString(i,j,k);
                           tripleOcurrence_X_Y_Z = tripleOcurrences(numberString);  
@@ -58,9 +55,9 @@ conditionalMatrixPP,conditionalMatrixPN,conditionalMatrixNP,conditionalMatrixNN,
                           (conditionalMatrixPN(i,k)*conditionalMatrixPN(j,k)*(1- independentProbabilities(k)))));
                           end
                           if(p_X_NY_NZ ~= 0)
-                          %p(x,~y,~z)*log(p(x,~y,~z)/(p(x|~z)*p(~y|~z)*p(~z)))
-                           DETValue = DETValue + p_X_NY_NZ*real(log(p_X_NY_NZ/...
-                          (conditionalMatrixPN(i,k)*conditionalMatrixNN(j,k)*(1-independentProbabilities(k)))));
+                            %p(~x,~y,z)*log(p(~x,~y,z)/(p(~x|z)*p(~y|z)*p(z)))
+                            DETValue = DETValue + p_NX_NY_Z*real(log(p_NX_NY_Z/...
+                            (conditionalMatrixNP(i,k)*conditionalMatrixNP(j,k)*independentProbabilities(k))));
                           end
                           if(p_NX_Y_NZ ~= 0)
                                %p(~x,y,~z)*log(p(~x,y,~z)/(p(~x|~z)*p(y|~z)*p(~z)))
@@ -68,16 +65,15 @@ conditionalMatrixPP,conditionalMatrixPN,conditionalMatrixNP,conditionalMatrixNN,
                                 (conditionalMatrixNN(i,k)*conditionalMatrixPN(j,k)*(1-independentProbabilities(k)))));
                           end
                           if(p_NX_NY_Z ~= 0)
-                            %p(~x,~y,z)*log(p(~x,~y,z)/(p(~x|z)*p(~y|z)*p(z)))
-                            DETValue = DETValue + p_NX_NY_Z*real(log(p_NX_NY_Z/...
-                            (conditionalMatrixNP(i,k)*conditionalMatrixNP(j,k)*independentProbabilities(k))));
+ 
                           end
                           if(p_NX_NY_NZ ~= 0)
-                            % p(~x,~y,~z)*log(p(~x,~y,~z)/(p(~x|~z)*p(~y|~z)*p(~z)))
-                            DETValue = DETValue + p_NX_NY_NZ*real(log(p_NX_NY_NZ/...
-                            (conditionalMatrixNN(i,k)*conditionalMatrixNN(j,k)*(1-independentProbabilities(k)))));
                           end
-                           if (DETValue < 0)
+
+                          % p(~x,~y,~z)*log(p(~x,~y,~z)/(p(~x|~z)*p(~y|~z)*p(~z)))
+                           DETValue = DETValue + p_NX_NY_NZ*real(log(p_NX_NY_NZ/...
+                          (conditionalMatrixNN(i,k)*conditionalMatrixNN(j,k)*(1-independentProbabilities(k)))));
+                           if (DETValue > 0)
                             directPath = false;
                             break;
                            end

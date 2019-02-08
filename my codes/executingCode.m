@@ -5,7 +5,7 @@ minimumTimeSeconds = 10;
 minimumAlarmOcurrences = 20;
 timeIntervalMinutes = 10;
 minimumProbability = 0.7;
-minimumFractalEntropyValue = 2.5*10e-3;
+minimumFractalEntropyValue = 10e-5;
 
 %% Getting conditional Matrix
 %[conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities,idMaps,occurencesMatrix]...
@@ -31,3 +31,7 @@ S = "Cluster alarms for probability!"
 (transferEntropyMatrix, minimumFractalEntropyValue);
 [clusterAlarmsTransferEntropy] = ClusteringAlarms (relatedAlarmsTrasnferEntropy);
 S = "Cluster alarms for fractal entropy!"
+%% Creating the Directed Acyclic Graph with the information
+[DAG]= creatingDirectedAcyclicGraph(transferEntropyMatrix,occurencesMatrix,tripleOcurrences,conditionalMatrixPP,...
+conditionalMatrixPN,conditionalMatrixNP,conditionalMatrixNN,independentProbabilities)
+S = "Creating the DAG!"
