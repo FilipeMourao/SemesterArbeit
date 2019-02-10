@@ -1,5 +1,5 @@
 function [conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities,idMaps,occurencesMatrix,mapTriples]= ...
-CreatingConditionalMatrixByTimeFixedWindowWithTriples(T,minimumTimeSeconds, maximumTimeMinutes,timeIntervalMinutes,minimumAlarmOcurrences)
+CreatingConditionalMatrixByTimeFixedWindowWithTriplesMarkov(T,minimumTimeSeconds, maximumTimeMinutes,timeIntervalMinutes,minimumAlarmOcurrences)
 
 %% Create conditional matrix of alarms 
 % Input
@@ -52,36 +52,58 @@ while(lastRow < length(iDColum))
         lastRow = lastRow + 1;
         timeTest = (datenum(starrtingTime(lastRow)) - datenum(starrtingTime(firstRow)))*24*60;
     end
-    % Counting with the limitant of an alarm ABCCABCBC 
-                %|2 2 2|
-                %|2 3 3|
-                %|2 3 4|
-
-    %Condider just the group alarm, which alarms appear in this group
+        % Counting with the limitant of an alarm ABCCABCBC 
+                %|2 1 1| ABC 4
+                %|3 3 2| BCA 1
+                %|4 4 4| CAB 1       
     alarmsAppearingInTheInterval = iDColum(firstRow:lastRow);%taking the alarms that appear in the windowed time
+    
+    
     uniqueIDInterval=unique(alarmsAppearingInTheInterval);%taking just the unique alarms that appear in the windowed time
     uniqueIDIntervalOccurences=unique(alarmsAppearingInTheInterval); %mapping the unique alarm that appear in the windowed time
     for i = 1:length(uniqueIDInterval)
      countingArray = alarmsAppearingInTheInterval == uniqueIDInterval(i);%count the occurences of the unique alarm i in the interval
      uniqueIDIntervalOccurences(i) = sum(countingArray);   %update the mapping array with the alarm data
     end
-    for i = 1:length(uniqueIDInterval)
-        occurencesMatrix(uniqueIDInterval(i),uniqueIDInterval(i)) = ...
-            occurencesMatrix(uniqueIDInterval(i),uniqueIDInterval(i))  + uniqueIDIntervalOccurences(i) ;
-        for j = i+1:length(uniqueIDInterval)
-            occurencesMatrix(uniqueIDInterval(i),uniqueIDInterval(j)) = ...
-                occurencesMatrix(uniqueIDInterval(i),uniqueIDInterval(j))  + min(uniqueIDIntervalOccurences(i),uniqueIDIntervalOccurences(j)) ;
-            occurencesMatrix(uniqueIDInterval(j),uniqueIDInterval(i)) = ...
-                occurencesMatrix(uniqueIDInterval(j),uniqueIDInterval(i))  + min(uniqueIDIntervalOccurences(i),uniqueIDIntervalOccurences(j)) ;
-            %updatig the triple matrix 
-            for k = j+1:length(uniqueIDInterval)
-                uniqueString = mappingNumbersIntoString(uniqueIDInterval(i),uniqueIDInterval(j),uniqueIDInterval(k));
-                mapTriples(uniqueString) = mapTriples(uniqueString) + min(min(uniqueIDIntervalOccurences(i),uniqueIDIntervalOccurences(j)),uniqueIDIntervalOccurences(k));    
+    stringCompare = '';
+    
+    
+    for i = 1:length(alarmsAppearingInTheInterval)
+                    occurencesMatrix(alarmsAppearingInTheInterval(i),alarmsAppearingInTheInterval(i)) =...
+                        occurencesMatrix(alarmsAppearingInTheInterval(i),alarmsAppearingInTheInterval(i)) + 1;
+        for j = i + 1:length(alarmsAppearingInTheInterval)
+            if(alarmsAppearingInTheInterval(i) == alarmsAppearingInTheInterval(j) )
+                break;
             end
-        end
-        
-    end
+            occurencesMatrix(alarmsAppearingInTheInterval(j),alarmsAppearingInTheInterval(i)) =...
+              occurencesMatrix(alarmsAppearingInTheInterval(j),alarmsAppearingInTheInterval(i)) + 1;
+ 
+                  for k = j + 1:length(alarmsAppearingInTheInterval)
+                        if((alarmsAppearingInTheInterval(i) == alarmsAppearingInTheInterval(k))||...
+                            (alarmsAppearingInTheInterval(j) == alarmsAppearingInTheInterval(k)) )
+                            break;
+                        end
+                uniqueString = mappingNumbersIntoString(alarmsAppearingInTheInterval(i),...
+                alarmsAppearingInTheInterval(j),alarmsAppearingInTheInterval(k));
+              
+%             if(~contains(stringCompare,uniqueString ))
+%                     iIndex = find(uniqueIDInterval == alarmsAppearingInTheInterval(i));
+%                     jIndex = find(uniqueIDInterval == alarmsAppearingInTheInterval(j));
+%                     kIndex = find(uniqueIDInterval == alarmsAppearingInTheInterval(k));
+%                                       mapTriples(uniqueString) = mapTriples(uniqueString) +...
+%                                       min(uniqueIDIntervalOccurences(iIndex),...
+%                                   min(uniqueIDIntervalOccurences(jIndex),...
+%                                   uniqueIDIntervalOccurences(kIndex))) ;
+%                             stringCompare =  strcat(stringCompare,strcat(uniqueString,'x'));
+%                 end
+                  mapTriples(uniqueString) = mapTriples(uniqueString) + 1 ;
+%                 if(strcmp(uniqueString,'4-33-24') )
+%                     mapTriples(uniqueString)
+%                 end
 
+                  end
+        end
+    end
 end
 %% Compute conditional probability  matrixes
 
@@ -97,49 +119,46 @@ for i = 1:size(occurencesMatrix,1)
     independentProbabilities(i,2) = occurencesMatrix(i,i);
 end
 
-
+%OccurenceMatrix(i,j) = j -> i
 for i = 1:size(occurencesMatrix,1)
-    %There are many alarms that just appear a limitable number of times 
     for j = 1:length(conditionalMatrixPP)
     %%Computing Postive/Posite Matrix
-        % P(B|A) = P(B&&A)/P(A)
+        % P(A|B) = P(B&&A)/P(A)
         % numberOfOccurences(A,B)/numberOfOccurences(A)
-        conditionalMatrixPP(i,j)= ( occurencesMatrix(i,j))/(occurencesMatrix(j,j));
+        conditionalMatrixPP(i,j)= ( occurencesMatrix(i,j))/(occurencesMatrix(i,i));
         
         %%Computing Postive/Negative Matrix
         % P(B|~A) = P(B&&~A)/P(~A)
         %(numberOfOccurences(B) - numberOfOccurences(A,B))/(numberOfTotalAlarmsOccurences - numberOfOccurences(A))
-        conditionalMatrixPN(i,j) = (occurencesMatrix(i,i) - occurencesMatrix(i,j))/(totalNumberOfAlarms - occurencesMatrix(j,j));
+        conditionalMatrixPN(i,j) = (occurencesMatrix(j,j) - occurencesMatrix(i,j))/(totalNumberOfAlarms - occurencesMatrix(i,i));
         
         %%Computing Negative/Postive Matrix
         % P(~B|A) = P(~B&&A)/P(A)
         %(numberOfOccurences(A)  - numberOfOccurences(A,B))/(numberOfOccurences(A))
-        conditionalMatrixNP(i,j) = (occurencesMatrix(j,j)  - occurencesMatrix(i,j) )/(occurencesMatrix(j,j));
+        conditionalMatrixNP(i,j) = (occurencesMatrix(i,i)  - occurencesMatrix(i,j) )/(occurencesMatrix(i,i));
         %%Computing Negative/Negative Matrix
         % P(~B|~A) = P(~B&&~A)/P(~A)
         %   (numberOfTotalAlarmsOccurences + numberOfOccurences(A,B)   - numberOfOccurences(A) - numberOfOccurences(B))/(numberOfTotalAlarmsOccurences - numberOfOccurences(A))
          conditionalMatrixNN(i,j) = (totalNumberOfAlarms  + occurencesMatrix(i,j) - occurencesMatrix(i,i) - occurencesMatrix(j,j) )...
-        /(totalNumberOfAlarms   - occurencesMatrix(j,j));
+        /(totalNumberOfAlarms   - occurencesMatrix(i,i));
     end
 end
 end
 %maps the 3 nubmers into a string, it's easy to map triples in this way and
 %it takes less memory
 function [numberString] = mappingNumbersIntoString(firstNumber,sencodNumber,thirdNumber)
-    numberArray = [firstNumber,sencodNumber,thirdNumber];
-    smallestNumber = min(numberArray);
-    medianNumber = median(numberArray); 
-    biggestNumer = max(numberArray);
-    numberString = string(smallestNumber )+"-" + string(medianNumber)+ "-"+ string(biggestNumer);
+    numberString = string(firstNumber )+"-" + string(sencodNumber)+ "-"+ string(thirdNumber);
     numberString = convertStringsToChars(numberString);
 end
 function [mapTriples] = creatingTriplesMap(numberOfDifferentIds)
     mapTriples = containers.Map;
     for i=1:numberOfDifferentIds
-        for j = i+1:numberOfDifferentIds
-            for k = j+1:numberOfDifferentIds
-                string = mappingNumbersIntoString(i,j,k);
-                mapTriples(string) = 0;
+        for j = 1:numberOfDifferentIds
+            for k = 1:numberOfDifferentIds
+                if( i ~= k && j ~= k && i ~= j)
+                                    string = mappingNumbersIntoString(i,j,k);
+                                    mapTriples(string) = 0;
+                end
             end
         end
     end

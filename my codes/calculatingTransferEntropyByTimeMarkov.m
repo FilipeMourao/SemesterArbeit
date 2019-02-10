@@ -1,5 +1,5 @@
 function [ transferEntropyMatrix] = ...
-calculatingTransferEntropyByTime(conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities)
+calculatingTransferEntropyByTimeMarkov(conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities)
 
 %% Create conditional matrix of alarms 
 % Input
@@ -21,7 +21,7 @@ independentEntropyMatrix= zeros(length(independentProbabilities),1);
 transferEntropyMatrix= zeros(length(conditionalMatrixPP));
 %H(X) = P(X)*log[P(X)]  + P(~X)*log[P(~X)]
 for i=1:length(independentProbabilities)
-    independentEntropyMatrix(i) = -(independentProbabilities(i)*real(log(independentProbabilities(i))) + ...
+    independentEntropyMatrix(i) = -( independentProbabilities(i)*real(log(independentProbabilities(i))) + ...
     (1-independentProbabilities(i))*real(log(1-independentProbabilities(i)))); 
 end
 %H(X|Y) = P(X,Y)*log[P(X|Y)]      + P(~X,Y)*log[P(~X|Y)]      +  P(X,~Y)*log[P(X|~Y)]       + P(~X,~Y)*log[P(~X|~Y)]
@@ -52,11 +52,11 @@ for i=1:length(conditionalEntropyMatrix)
         conditionalEntropyMatrix(i,j) = conditionalEntropyMatrix(i,j) + ...  
         conditionalMatrixNN(i,j)*(1 - independentProbabilities(j))*real(log(conditionalMatrixNN(i,j)));
         end
-    conditionalEntropyMatrix(i,j) = - conditionalEntropyMatrix(i,j);
+     conditionalEntropyMatrix(i,j) = - conditionalEntropyMatrix(i,j);
     end
 end
 %T(X->Y) = H(Y) - H(Y|X)
-%T(i->j) = H(j) - H(j|i)
+%T(i,j)=(T(i->j)) = H(j) - H(j|i)
 for i=1:length(conditionalEntropyMatrix)
     for j=1:length(conditionalEntropyMatrix)
         if i ~= j
@@ -64,6 +64,7 @@ for i=1:length(conditionalEntropyMatrix)
         end
     end
 end
+
 
 end
 
