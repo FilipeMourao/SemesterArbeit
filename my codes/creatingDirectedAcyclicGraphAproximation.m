@@ -1,4 +1,4 @@
-function [CausalRelation, DAG]= creatingDirectedAcyclicGraphAproximation(transferEntropyMatrix,occurencesMatrix,mapTriples,...
+function [CausalRelation, DAG]= creatingDirectedAcyclicGraphAproximation(transferEntropyMatrix,occurencesMatrix,tripleOcurrences,...
     conditionalMatrixPP,conditionalMatrixPN,conditionalMatrixNP,conditionalMatrixNN,independentProbabilities)
 intializerConstant = 5;
 CausalRelation = ones(size(occurencesMatrix))*intializerConstant ;
@@ -21,7 +21,7 @@ for i = 1:size(occurencesMatrix,1)
                 for k = 1:size(occurencesMatrix,1)
                     if(k ~= i && k ~=j && transferEntropyMatrix(i,k) > 0 && transferEntropyMatrix(k,j) > 0)
                         numberString = mappingNumbersIntoString(i,k,j);
-                        tripleOcurrence_X_Y_Z = mapTriples(numberString) ;
+                        tripleOcurrence_X_Y_Z = tripleOcurrences(numberString) ;
                         if tripleOcurrence_X_Y_Z > 0
                             p_X_Y_Z = tripleOcurrence_X_Y_Z/totalAlarmOccurences;
                             p_NX_Y_Z = (occurencesMatrix(j,k) - tripleOcurrence_X_Y_Z )/totalAlarmOccurences;

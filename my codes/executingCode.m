@@ -11,11 +11,11 @@ minimumFractalEntropyValue = 10e-5;
 %[conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities,idMaps,occurencesMatrix]...
 %= CreatingConditionalMatrixByTimeFixedWindow(T,minimumTimeSeconds, maximumTimeMinutes,timeIntervalMinutes,minimumAlarmOcurrences);
 [conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities,idMaps,occurencesMatrix,tripleOcurrences]= ...
-CreatingConditionalMatrixByTimeFixedWindowWithTriples(T,minimumTimeSeconds, maximumTimeMinutes,timeIntervalMinutes,minimumAlarmOcurrences)
+CreatingConditionalMatrixByTimeFixedWindowWithTriplesMarkov(T,minimumTimeSeconds, maximumTimeMinutes,timeIntervalMinutes,minimumAlarmOcurrences)
 S = "Conditional Matrixes calculated!"
 %% Calculating fractal entropy
 [ transferEntropyMatrix] = ...
-calculatingTransferEntropyByTime(conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities);
+calculatingTransferEntropyByTimeMarkov(conditionalMatrixPP,conditionalMatrixNP,conditionalMatrixPN,conditionalMatrixNN,independentProbabilities);
 S = "Fractal Matrix calculated!"
 
 %% Clustering the elements by conditional probabilities
@@ -32,6 +32,7 @@ S = "Cluster alarms for probability!"
 [clusterAlarmsTransferEntropy] = ClusteringAlarms (relatedAlarmsTrasnferEntropy);
 S = "Cluster alarms for fractal entropy!"
 %% Creating the Directed Acyclic Graph with the information
-[DAG]= creatingDirectedAcyclicGraph(transferEntropyMatrix,occurencesMatrix,tripleOcurrences,conditionalMatrixPP,...
-conditionalMatrixPN,conditionalMatrixNP,conditionalMatrixNN,independentProbabilities)
+[CausalRelation, DAG]= creatingDirectedAcyclicGraphAproximation(transferEntropyMatrix,occurencesMatrix,tripleOcurrences,...
+    conditionalMatrixPP,conditionalMatrixPN,conditionalMatrixNP,conditionalMatrixNN,independentProbabilities)
 S = "Creating the DAG!"
+showDAG(DAG,idMaps);
