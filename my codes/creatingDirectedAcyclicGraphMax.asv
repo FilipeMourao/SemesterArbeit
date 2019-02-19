@@ -1,0 +1,46 @@
+function [CausalRelation, DAG]= creatingDirectedAcyclicGraphMax(transferEntropyMatrix,occurencesMatrix,tripleOcurrences,...
+    conditionalMatrixPP,conditionalMatrixPN,conditionalMatrixNP,conditionalMatrixNN,independentProbabilities)
+limitOfCausalAndConsequenceRelation = 3;
+transferEntropyMatrixCopy = transferEntropyMatrix;
+CausalRelation = zeros(size(occurencesMatrix));
+nodesAddedToTheGraph = zeros(size(independentProbabilities,1),1);
+causeConsequenceArray = [0,0];
+% maximumTransferEntropyValue = max(max(transferEntropyMatrixCopy));
+% [x,y]=find(transferEntropyMatrixCopy==maximumTransferEntropyValue);
+% causalNode = x(1);
+% consequenceNode = y(1);
+% transferEntropyMatrixCopy(causalNode ,consequenceNode) = -Inf;
+% CausalRelation(causalNode,consequenceNode) = 1;
+% CausalRelation(consequenceNode,causalNode) = -1;
+% causeConsequenceArray = [causeConsequenceArray;[causalNode,consequenceNode]];
+% nodesAddedToTheGraph(causalNode) = 1;
+% nodesAddedToTheGraph(consequenceNode) = 1;
+while sum(nodesAddedToTheGraph) < size(independentProbabilities,1)
+    maximumTransferEntropyValue = max(max(transferEntropyMatrixCopy));
+    [x,y]=find(transferEntropyMatrixCopy==maximumTransferEntropyValue);
+    if maximumTransferEntropyValue > 0
+        causalNode = x(1);
+        consequenceNode = y(1);
+        transferEntropyMatrixCopy(causalNode ,consequenceNode) = -Inf;
+        if(length(find(causeConsequenceArray(:,1) == causalNode))< limitOfCausalAndConsequenceRelation &&...
+                length(find(causeConsequenceArray(:,2) == consequenceNode))< limitOfCausalAndConsequenceRelation  )
+            CausalRelation(causalNode,consequenceNode) = 1;
+            CausalRelation(consequenceNode,causalNode) = -1;
+            causeConsequenceArray = [causeConsequenceArray;[causalNode,consequenceNode]];
+            if nodesAddedToTheGraph(causalNode) == 0
+                nodesAddedToTheGraph(causalNode) = 1;
+            end
+            if nodesAddedToTheGraph(consequenceNode) == 0
+                nodesAddedToTheGraph(consequenceNode) = 1;
+            end
+        end
+    else
+        break;
+    end
+end
+
+causeConsequenceArray = unique(causeConsequenceArray, 'rows', 'first');
+causeConsequenceArray = [causeConsequenceArray(2:size(causeConsequenceArray,1),1),causeConsequenceArray(2:size(causeConsequenceArray,1),2)]
+DAG = sparse(causeConsequenceArray(:,1),causeConsequenceArray(:,2),true,size(independentProbabilities,1),size(independentProbabilities,1));
+end
+

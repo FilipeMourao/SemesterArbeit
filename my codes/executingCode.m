@@ -32,7 +32,7 @@ S = "Cluster alarms for probability!"
 [clusterAlarmsTransferEntropy] = ClusteringAlarms (relatedAlarmsTrasnferEntropy);
 S = "Cluster alarms for fractal entropy!"
 %% Creating the Directed Acyclic Graph with the information
-[CausalRelation, DAG]= creatingDirectedAcyclicGraphAproximation(transferEntropyMatrix,occurencesMatrix,tripleOcurrences,...
+[CausalRelation, DAG]= creatingDirectedAcyclicGraphMax(transferEntropyMatrix,occurencesMatrix,tripleOcurrences,...
     conditionalMatrixPP,conditionalMatrixPN,conditionalMatrixNP,conditionalMatrixNN,independentProbabilities)
 S = "Creating the DAG!"
 showDAG(DAG,idMaps);
